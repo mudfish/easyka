@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+</head>
+<body>
+
+<table class="layui-hide" id="goodsTab" lay-filter="goodsTab"></table>
+
+<input type="text" id="ctx" hidden="hidden" th:value="${#request.getContextPath()}">
+
+<!--编辑表单-->
+<div class="layui-row" id="editForm" style="display:none;">
+    <div class="layui-col-md10">
+        <form class="layui-form layui-from-pane" action="" style="margin-top:20px">
+            <input type="text" id="id" name="id" hidden="hidden">
+            <!--商品分类-->
+            <div class="layui-form-item">
+                <label class="layui-form-label">商品分类</label>
+                <div class="layui-input-block">
+                    <select id="typeId" name="typeId" lay-verify="required">
+                        <option value="">--选择商品分类--</option>
+                    </select>
+                    <div class="layui-unselect layui-form-select">
+                        <div class="layui-select-title">
+                            <input type="text" placeholder="请选择" value="" readonly=""
+                                   class="layui-input layui-unselect">
+                            <i class="layui-edge"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--商品名称-->
+            <div class="layui-form-item">
+                <label class="layui-form-label">商品名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="goodsName" name="goodsName" required lay-verify="required" autocomplete="off"
+                           placeholder="请输入名称" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">商品图片</label>
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn" id="uploadImage">
+                        <i class="layui-icon">&#xe67c;</i>选择图片
+                    </button>
+                    <div class="layui-upload-list">
+                        <img class="layui-upload-img" id="imgUrl" style="width: 150px;height: 100px;">
+                    </div>
+                    <input type="text" name="pic" id="pic" hidden="hidden">
+                    <!--<button type="button" class="layui-btn layui-btn-warm" id="uploadBtn">开始上传</button>-->
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">商品介绍</label>
+                <div class="layui-input-block">
+                    <textarea name="goodsDesc" id="goodsDesc" placeholder="请输入内容" class="layui-textarea"></textarea>
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">商品价格</label>
+                <div class="layui-input-block">
+                    <input type = "text" name="price" id="price" class="layui-input" min = "0"  step = "0.1"
+                           lay-verify="number" value="0">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">是否上架</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" id="onSale" name="onSale" lay-skin="switch" lay-text="ON|OFF">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">商品排序</label>
+                <div class="layui-input-block">
+                    <input type="text" name="seqNo" id="seqNo" class="layui-input" min = "1"  step = "1"
+                           lay-verify="number" value="1">
+                </div>
+            </div>
+
+            <div class="layui-form-item" style="margin-top:40px">
+                <div class="layui-input-block">
+                    <button class="layui-btn  layui-btn-submit " lay-submit="" lay-filter="submitBtn">确认</button>
+                    <button class="layui-btn layui-btn-primary" id="back">关闭</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script th:src="@{/static/js/jquery.min.js}" charset="utf-8"></script>
+<script th:src="@{/static/layui/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/util.js}" charset="utf-8"></script>
+
+<script>
+    var table,form,upload;
+    layui.use(['jquery', 'table','upload'], function () {
+         table = layui.table;
+         form = layui.form;
+         upload = layui.upload;
+
+        //普通图片上传
+        var uploadInst =upload.render({
+            elem: '#uploadImage'
+            ,url: ctx+'api/file/uploadImage'
+            ,done: function(res){
+                //如果上传失败
+                if(res.code > 0){
+                    return layer.msg('上传失败',{icon:5,time:1500});
+                }else{
+                    $('#imgUrl').attr('src', ctx+res.imgUrl);
+                    $('#pic').val(res.imgUrl);
+                    return layer.msg('上传成功',{icon:1,time:1500});
+                }
+
+            }
+            ,error: function(){
+                return layer.msg('上传失败',{icon:5,time:1500});
+            }
+        });
+
+        table.render({
+            elem: '#goodsTab'
+            , url: '/goods/list'
+            , method: 'post'
+            , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , defaultToolbar: ['exports']
+            , title: 'goodsTab'
+            , cols: [
+                [
+                    {field: 'id', title: 'ID', align: 'center',width: 80}
+                    , {field: 'goodsName', title: '商品名称', align: 'center'}
+                    , {field: 'typeName', title: '商品分类', align: 'center'}
+                    , {field: 'price', title: '商品价格', align: 'center'}
+                    , {field: 'kmQty', title: '卡密总数', align: 'center'}
+                    , {field: 'kmLeft', title: '剩余卡密', align: 'center'}
+                    , {field: 'onSale', title: '商品状态', align: 'center', width:120, templet: function (d) {
+                        if(d.onSale == 0){
+                            return '<button type="button" class="layui-btn layui-btn-xs layui-btn-danger" onclick="change_sale_state('+d.id+', 1)">停售</button>'
+                        }if(d.onSale == 1){
+                            return '<button type="button" class="layui-btn layui-btn-xs" onclick="change_sale_state('+d.id+', 0)">上架中</button>'
+                        }
+                    }}
+                    , {field: 'seqNo', title: '排序', align: 'center', hide: 'true'}
+                    , {field: 'pic', title: '商品图片', align: 'center', hide: 'true'}
+                    , {fixed: 'right', title: '操作', toolbar: '#barDemo'}
+                ]
+            ]
+            , page: true
+            , request: {
+                pageName: 'pageNo' //页码的参数名称，默认：page
+                , limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            }
+            , parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": 0, //解析接口状态
+                    "msg": "", //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                };
+            }
+
+        });
+
+
+        form.verify({
+            integer:[
+                /^[0-9]\d*$/
+                ,'只能输入整数！'
+            ]
+        });
+
+        var $ = layui.$, active = {
+            reload: function () {
+                var queryWhere = {};
+
+                //执行重载
+                table.reload('goodsTab', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: queryWhere
+                    , done: function (res, curr, count) {
+                        this.where = {};
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.searchTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //头工具栏事件
+        table.on('toolbar(goodsTab)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                //自定义头工具栏右侧图标 - 提示
+                case 'add':
+                    //iframe层-父子操作
+                {
+                    var updateIndex = layer.open({
+                        //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                        type: 1,
+                        title: "新增",
+                        area: ['600px', '680px'],
+                        content: $("#editForm")//引用的弹出层的页面层的方式加载修改界面表单
+                    });
+                    // 重置表单
+                    setFormValue(obj,null);
+                }
+                    break;
+            }
+            ;
+        });
+
+        //监听弹出框表单提交，massage是修改界面的表单数据'submit(submitBtn),是修改按钮的绑定
+        function setFormValue(obj, data) {
+            var target = $("#typeId");
+            // 加载商品分类
+            $.ajax({
+                type: "GET",
+                url: ctx+'goodsType/listAll',
+                success: function (result) {
+                    target.find("option").remove();
+                    target.append(new Option());
+                    $.each(result.data, function (index, item) {
+                        target.append(new Option(item.typeName, item.id));
+                    });
+
+                    if (data != null) {
+                        $("#id").val(data.id);
+                        $("#typeId").val(data.typeId);
+                        $("#goodsName").val(data.goodsName);
+                        $("#goodsDesc").val(data.goodsDesc);
+                        $("#pic").val(data.pic);
+                        $("#imgUrl").attr('src',data.pic);
+                        if(data.onSale='1'){
+                            $("#onSale").prop("checked",true);
+                        }
+                        $("#price").val(data.price);
+                        $("#seqNo").val(data.seqNo);
+                    }else{
+                        // 重置表单
+                        resetForm();
+                    }
+                    layui.form.render();
+                }
+
+            })
+
+            form.on('submit(submitBtn)', function (massage) {
+                alert(JSON.stringify(massage.field));
+                if(massage.field.onSale==''){
+                    massage.field.onSale = '0';
+                }else{
+                    massage.field.onSale = '1';
+                }
+                $.ajax({
+                    url: $("#id").val() ==''?'/goods/add':'/goods/modify',
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(massage.field),
+                    success: function (data) {
+                        layer.closeAll();//关闭所有的弹出层
+                        table.reload('goodsTab');
+                    }
+                });
+            })
+        }
+
+        function resetForm(){
+            $("#id").val("");
+            $("#typeId").val("");
+            $("#goodsName").val("");
+            $("#goodsDesc").val("");
+            $("#pic").attr('src',"");
+            $("#onSale").prop("checked",true);
+            $("#price").val("0");
+            $("#seqNo").val("1");
+        }
+
+        form.on('submit(submitBtn)', function (massage) {
+            $.ajax({
+                url: $("#id").val() ==''?'/goods/add':'/goods/modify',
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(massage.field),
+                success: function (data) {
+                    layer.closeAll();//关闭所有的弹出层
+                }
+            });
+        })
+
+
+        //监听行工具事件
+        table.on('tool(goodsTab)', function (obj) {
+            var data = obj.data;
+            console.log(obj)
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/goods/remove",
+                        traditional: true,
+                        data: {
+                            id: data.id
+                        },
+                        success: function (data) {
+                            layer.close(index);
+
+                            //执行重载
+                            table.reload('goodsTab');
+                        },
+                        error: function (e) {
+                            console.log("ERROR: ", e);
+                        }
+                    });
+                });
+            } else if (obj.event === 'edit') {
+                //iframe层-父子操作
+                var updateIndex = layer.open({
+                    //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                    type: 1,
+                    title: "修改",
+                    area: ['500px', '550px'],
+                    content: $("#editForm")//引用的弹出层的页面层的方式加载修改界面表单
+
+                });
+                setFormValue(obj, data);
+            }
+        });
+
+
+        $("#back").on('click', function () {
+            layer.closeAll();
+        });
+
+
+    });
+
+    // 修改商品状态
+    function change_sale_state(id, state) {
+        $.ajax({
+            url: ctx+'/goods/changeSaleState',
+            type: "POST",
+            traditional: true,
+            data: {
+                id: id,
+                state: state
+            },
+            success: function (data) {
+                table.reload('goodsTab');
+            }
+        });
+    }
+
+</script>
+
+</body>
+</html>

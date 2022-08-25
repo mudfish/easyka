@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laoxu.game.mapper.OperLogMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.laoxu.game.entity.OperLog">
+        <id column="id" property="id" />
+        <result column="oper_module" property="operModule" />
+        <result column="oper_method" property="operMethod" />
+        <result column="oper_type" property="operType" />
+        <result column="oper_desc" property="operDesc" />
+        <result column="req_method" property="reqMethod" />
+        <result column="oper_param" property="operParam" />
+        <result column="oper_ip" property="operIp" />
+        <result column="oper_uri" property="operUri" />
+        <result column="oper_user" property="operUser" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+</mapper>

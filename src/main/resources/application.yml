@@ -1,0 +1,30 @@
+server:
+  port: 18081
+spring:
+  mvc:
+    static-path-pattern: /**
+    thymeleaf:
+      encoding: UTF-8
+      cache: false
+      mode: HTML5
+      prefix: classpath:/templates/
+      suffix: .html
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root123
+    url: jdbc:mysql://localhost:3306/easyka?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT&useSSL=false
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  #configuration:
+    #log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# 文件上传路径
+web:
+  upload:
+    path: D:/upload/easyka/
+  APP_ID: c36b2cdc23ee73b8
+  APP_SECRET: 82bfb7283d039f5f5ef16caddbf9ba48
+  API_URL: https://v.vv123.xyz/createOrder
+  # 订单支付回调接口
+  notifyUrl: http://202.189.12.222:18081/webapi/notifyUrl

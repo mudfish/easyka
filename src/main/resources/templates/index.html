@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-cn" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>问道抽奖网</title>
+    <meta name="keywords" content="问道抽奖网">
+    <meta name="description" content="问道抽奖网">
+    <link rel="stylesheet" th:href="@{/static/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+
+    <link rel="shortcut icon" type="image/x-icon" media="screen" th:href="@{/static/img/4.png}">
+    <link rel="stylesheet" id="layuicss-skinlayercss" th:href="@{/static/css/layer.css}">
+    <style>
+        img.logo{width:14px;height:14px;margin:0 5px 0 3px;}
+        body{
+            /*background-image: url("assets/imgs/bj3.jpg");*/
+            background-size:100%;
+            background-color: #afa6a9;
+        }
+        .tzzfb-btn {
+            background-color: #008CBA;
+            border: none;
+            color: white;
+            padding: 10px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 5px 0;
+            box-shadow: 1px 1px 5px #b2b2b2;
+        }
+    </style>
+</head>
+<body>
+<div style="height: 20px;">
+</div>
+<div class="container">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-9 center-block" style="float: none;">
+        <!--<div class="panel panel-default" style="border: 2px solid #63B8FF;">
+            <div class="panel-body" style="text-align: center;" >
+        <img alt="" height="82px" src="assets/imgs/logo.png">
+        </div>
+        </div>
+        -->
+        <div class="panel panel-primary">
+            <div class="panel-body" style="text-align: center;">
+                <div class="panel panel-info">
+                    <div class="list-group-item reed" style="background: #66bdff;">
+                        <h3 class="panel-title">
+                            <font color="#fff"><i class="fa fa-volume-up"></i>&nbsp;&nbsp;<b>购买须知&lt;用户必看&gt;</b></font>
+                        </h3>
+                    </div>
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr>
+                            <td align="center"><font color="#808080">本站域名：localhost:81</font></td>
+                            <td align="center"><font color="#808080">客服QQ:2480035622</font></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <div class="list-group-item reed">
+
+                        <font style="color:#009ACD;font-weight: bold;">提取卡密后请尽快激活使用或保存好，系统定期清除被提取的卡密</font>
+                    </div>
+                    <div class="list-group-item reed">
+                        <font style="color:#556B2F;font-weight: bold;">付款后按提示点击确定跳转到提取页面，不可提前关闭窗口！否则无法提取到卡密！</font>
+                    </div>
+                    <div class="list-group-item reed">
+                        <font style="color:#008B00;font-weight: bold;">提取码是订单编号 或者 您的联系方式！</font>
+                    </div>
+
+
+                </div>
+                <div class="list-group">
+
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#onlinebuy" data-toggle="tab">在线购买下单</a></li>
+                        <li><a th:href="@{/getAllKm}">订单查询提卡</a></li>
+                        <!--<li><a href="index.php?tp=default&action=getallkm" >查询历史订单</a></li>-->
+                    </ul>
+                    <div class="list-group-item">
+                        <div id="myTabContent" class="tab-content">
+                            <div class="tab-pane fade in active" id="onlinebuy">
+                                <div class="form-group">
+                                    <div class="input-group"><div class="input-group-addon">商品分类</div>
+                                        <select name="tp_id" id="tp_tid" class="form-control"
+                                                onchange="getGoods(this);">
+                                            <!--<option value="1">问道</option>-->
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="input-group"><div class="input-group-addon">选择商品</div>
+                                        <select name="gid" id="gid" class="form-control" onchange="getPrice(this)"><option>请选择商品</option></select>
+                                    </div></div>
+                                <div class="form-group">
+                                    <img id="goodimgs" th:src="@{/static/img/nopic.jpg}" class="img-responsive img-rounded img-thumbnail" style="max-height: 200px;">
+                                </div>
+                                <div class="form-group">
+                                    <div class="panel panel-default">
+                                        <div class="panel-body" id="ginfo" style="display: none;"></div>
+                                    </div>
+                                </div></div>
+                            <div class="form-group">
+                                <div class="input-group"><div class="input-group-addon">商品价格</div>
+                                    <input type="text" name="need" id="need" class="form-control" disabled="">
+                                </div></div>
+
+                            <div class="form-group" style=" ">
+                                <div class="input-group"><div class="input-group-addon">商品库存</div>
+                                    <input type="text" name="kc" id="kc" class="form-control" disabled="">
+                                </div></div>
+
+                            <div class="form-group">
+                                <div class="input-group"><div class="input-group-addon">联系方式</div>
+                                    <input type="text" name="lx" id="lx" value="" class="form-control" placeholder="输入您的QQ,您的QQ号码也可以作为您的提取密码" required="">
+                                </div></div>
+                            <div class="input-group">
+                                <div class="input-group"><div class="input-group-addon">选择数量</div>
+                                    <div class="input-group-addon btn btn-primary" id="jia" onclick="numstepUp()">+</div>
+                                    <input type="number" onblur="checkInputNum(1)" name="number" id="number" class="form-control " placeholder="" min="1" step="1" value="1" required="">
+                                    <div class="input-group-addon btn btn-primary" id="jian" onclick="numstepDown(1)">-</div>
+
+                                </div><br>
+                            </div>
+                            <div class="form-group">
+                                <span class="btn btn-default btnSpan" title="alipay"><input type="radio" name="type" value="alipay" class="pay" id="alipay" title="支付宝"><img alt="" th:src="@{/static/img/alipay.ico}" class="logo">支付宝</span>
+                                <span class="btn btn-default btnSpan" title="wxpay"><input type="radio" name="type" value="wxpay" class="pay" id="wxpay" title="微信"><img alt="" th:src="@{/static/img/wechat.ico}" class="logo">微信</span>
+                                <!--暂不开放
+                                <span class="btn btn-default btnSpan" title="qqpay"><input type="radio" name="type" value="qqpay"  class="pay" id="qqpay" value="qqpay" title="QQ钱包" ><img alt="" src="assets/qqpay.ico" class="logo">QQ</span>
+                                <span class="btn btn-default btnSpan" title="tenpay" style="display: none"><input type="radio" name="type" value="tenpay" class="pay" id="tenpay" value="tenpay" title="财付通" ><img alt="" src="assets/tenpay.ico" class="logo">财付通</span>
+                                 -->
+                            </div>
+                        </div>
+                        <input type="submit" id="submit_buy" class="btn btn-primary btn-block" value="立即购买">
+                    </div>
+                </div>
+                <hr>
+                <div class="container-fluid">
+                    <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=1220518150&amp;site=qq&amp;menu=yes" class="btn btn-info btn-sm" target="_blank">
+                        <span class="glyphicon glyphicon-user"></span> 联系客服</a>
+                </div>
+                <br>
+                <span>Copyright © 2021 问道抽奖网</span>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="orderNo">
+<!--    支付提示框-->
+    <div style="text-align:center" id="paytip">
+        <div>
+            <img id="qrcode" src=""/>
+        </div>
+        <div style="font-size: 18px;">
+            支付金额：
+            <span style="color:red;font-weight: bold;" id="amount-txt"></span>
+        </div>
+
+       <!-- <button type="button" onclick="clickOpenApp();" class="tzzfb-btn">手机支付宝支付</button>
+
+        <div style="color: #ed800f; font-size: 15px;">剩余时间：
+            <strong id="hour_show">0时</strong>
+            <strong id="minute_show">0分</strong>
+            <strong id="second_show">0秒</strong>
+        </div>-->
+    </div>
+</div>
+<input type="text" id="ctx" hidden="hidden" th:value="${#request.getContextPath()}">
+
+<script th:src="@{/static/js/jquery.min.js}"></script>
+<script th:src="@{/static/js/bootstrap.min.js}"></script>
+<script th:src="@{/static/js/jquery.cookie.min.js}"></script>
+<!--[if lt IE 9]>
+<script src="https://cdn.bootcdn.net/ajax/libs/html5shiv/r29/html5.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script th:src="@{/static/js/layer.js}"></script>
+<script th:src="@{/static/js/index.js}"></script>
+<script th:src="@{/static/js/util.js}"></script>
+
+<script type="text/javascript">
+    $(function(){
+        //获取商品分类
+        //getPoint($("#tp_tid"));
+        getGoodsTypes();
+    })
+
+    function checkInputNum(n){
+        var a = $('#kc').attr("alt");
+        var num =  parseInt($("#number").val());
+
+        if(num <= n || num == null || num == ""|| isNaN(num)){
+            $("#number").val(n);
+        }else{
+            $("#number").val(num);
+        }
+        if(a < num){
+            $("#number").val(a);
+        }
+
+    }
+
+    function numstepUp(n){
+        var num =  parseInt($("#number").val());
+        $("#number").val(num+1);
+    }
+    function numstepDown(n){
+        var num =  parseInt($("#number").val());
+        if(num > n){
+            $("#number").val(num-1);
+        }
+    }
+
+</script>
+
+<div class="layui-layer-move"></div></body></html>

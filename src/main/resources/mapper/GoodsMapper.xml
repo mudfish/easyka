@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laoxu.game.mapper.GoodsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.laoxu.game.entity.Goods">
+        <id column="id" property="id" />
+        <result column="type_id" property="typeId" />
+        <result column="type_name" property="typeName" />
+        <result column="goods_name" property="goodsName" />
+        <result column="goods_desc" property="goodsDesc" />
+        <result column="price" property="price" />
+        <result column="pic" property="pic" />
+        <result column="on_sale" property="onSale" />
+        <result column="seq_no" property="seqNo" />
+        <result column="km_qty" property="kmQty" />
+        <result column="km_left" property="kmLeft" />
+        <result column="create_time" property="createTime" />
+        <result column="create_user" property="createUser" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_user" property="updateUser" />
+    </resultMap>
+
+    <select id="selectGoodsList" resultMap="BaseResultMap">
+        SELECT a.id,
+               a.type_id,
+               b.type_name,
+               a.goods_name,
+               a.goods_desc,
+               a.price,
+               a.pic,
+               a.on_sale,
+               a.seq_no,
+               (select count(*) from tb_goods_item where goods_id = a.id) as km_qty,
+               (select count(*) from tb_goods_item where goods_id = a.id and (order_no is null or order_no='')) as km_left,
+               a.create_time,
+               a.create_user,
+               a.update_time,
+               a.update_user
+        FROM tb_goods a
+        LEFT JOIN tb_goods_type b
+        ON a.type_id = b.id
+    </select>
+
+    <select id="selectGoodsListByMap" parameterType="map" resultMap="BaseResultMap">
+        SELECT a.id,
+               a.type_id,
+               a.goods_name,
+               a.goods_desc,
+               a.price,
+               a.pic,
+               a.on_sale,
+               a.seq_no,
+               (select count(*) from tb_goods_item where goods_id = a.id and (order_no is null or order_no='')) as km_left,
+               a.create_time,
+               a.create_user,
+               a.update_time,
+               a.update_user
+        FROM tb_goods a
+        <where>
+            <if test="typeId != null">
+                AND a.type_id = #{typeId}
+            </if>
+            <if test="onSale != null">
+                AND a.on_sale = #{onSale}
+            </if>
+        </where>
+        ORDER BY a.seq_no
+    </select>
+
+    <select id="kmtj" parameterType="int" resultType="map">
+        select
+        (select count(*) from tb_goods_item where goods_id=#{goodsId}) as "total",
+        (select count(*) from tb_goods_item where goods_id=#{goodsId} and (order_no is null or order_no='') ) as "left"
+    </select>
+</mapper>

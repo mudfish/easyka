@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laoxu.game.mapper.GoodsItemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.laoxu.game.entity.GoodsItem">
+        <id column="id" property="id" />
+        <result column="goods_name" property="goodsName" />
+        <result column="goods_id" property="goodsId" />
+        <result column="km" property="km" />
+        <result column="create_time" property="createTime" />
+        <result column="order_no" property="orderNo" />
+        <result column="pay_no" property="payNo" />
+        <result column="contact" property="contact" />
+    </resultMap>
+
+    <select id="selectGoodsItemList" resultMap="BaseResultMap">
+        SELECT *
+        FROM
+        (
+        SELECT a.id, b.goods_name, a.goods_id, a.km, a.create_time, a.order_no, c.pay_no, c.contact
+        FROM tb_goods_item a
+        LEFT JOIN tb_goods b ON a.goods_id = b.id
+        LEFT JOIN tb_order c ON a.order_no = c.order_no
+        ) AS T
+        <where>
+            <if test="keyword != null and keyword != ''">
+                 t.order_no = #{keyword}
+                OR t.pay_no = #{keyword}
+                OR t.contact = #{keyword}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateByOrder" parameterType="map">
+        UPDATE tb_goods_item
+        SET order_no = #{orderNo}
+        WHERE order_no IS NULL OR order_no = ''
+        LIMIT #{qty}
+    </update>
+</mapper>

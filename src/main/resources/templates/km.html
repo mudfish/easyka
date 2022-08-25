@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+
+    <style type="text/css">
+        .searchTable{
+            text-align: center;
+        }
+
+        .kmtjbj{
+            background-color: #edf1f2;
+            text-align: center;
+        }
+
+        .list-group {
+            border-radius: 2px;
+        }
+        .list-group {
+            padding-left: 0;
+            margin-bottom: 20px;
+        }
+        ol, ul {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .list-group-item:first-child {
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+        }
+
+        .list-group-item {
+            padding-right: 15px;
+            border-color: #e7ecee;
+        }
+        .list-group-item {
+            position: relative;
+            display: block;
+            padding: 10px 15px;
+            margin-bottom: -1px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<!--搜索区域-->
+<div class="searchTable">
+    <div class="layui-inline">
+        <input class="layui-input" name="s_keyword" id="s_keyword" autocomplete="off"
+               placeholder="商品名称/卡密名称/订单号/联系方式" style="width: 300px;">
+    </div>
+    <button id="searchBtn" class="layui-btn" data-type="reload">搜索</button>
+</div>
+
+<table class="layui-hide" id="kmTab" lay-filter="kmTab"></table>
+
+<input type="text" id="ctx" hidden="hidden" th:value="${#request.getContextPath()}">
+
+<!--编辑表单-->
+<div class="layui-row" id="editForm" style="display:none;">
+    <div class="layui-col-md10">
+        <form class="layui-form layui-from-pane" action="" style="margin-top:20px">
+            <!--<input type="text" id="id" name="id" hidden="hidden">-->
+            <!--商品分类-->
+            <div class="layui-form-item">
+                <label class="layui-form-label">商品</label>
+                <div class="layui-input-block">
+                    <select id="goodsId" name="goodsId" lay-verify="required" lay-filter="goodsId">
+                        <option value="">--选择商品--</option>
+                    </select>
+                    <div class="layui-unselect layui-form-select">
+                        <div class="layui-select-title">
+                            <input type="text" placeholder="请选择" value="" readonly=""
+                                   class="layui-input layui-unselect">
+                            <i class="layui-edge"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--卡密列表-->
+            <div class="layui-form-item">
+                <label class="layui-form-label">卡密列表</label>
+                <div class="layui-input-block">
+                    <textarea name="kms" id="kms" placeholder="一行一张卡，格式自定义即可！例如：卡号----卡密" class="layui-textarea"
+                              cols="50" rows="18" lay-verify="required"></textarea>
+                </div>
+            </div>
+
+            <!--根据所选商品展示其剩余卡密信息-->
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <input type="text" id="kmtj" disabled=disabled class="layui-input kmtjbj">
+                </div>
+            </div>
+
+            <div class="layui-form-item" style="margin-top:40px; text-align: center;">
+                <div class="layui-input-block">
+                    <button class="layui-btn  layui-btn-submit " lay-submit="" lay-filter="submitBtn">提交</button>
+                    <button class="layui-btn layui-btn-primary" id="back">关闭</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--详情页-->
+<div class="layui-row" id="viewForm" style="display:none;">
+    <ul class="list-group">
+        <li class="list-group-item" id="goodsName">商品名称：无</li>
+        <li class="list-group-item" id="km">卡密信息：无</li>
+        <li class="list-group-item" id="createTime">导入时间：无</li>
+        <li class="list-group-item" id="orderNo">系统订单编号：无</li>
+        <li class="list-group-item" id="payNo">商户订单编号：无</li>
+        <li class="list-group-item" id="contact">联系方式：无</li>
+        <li class="list-group-item" id="status">卡密状态：<font color="green">未使用</font></li>
+    </ul>
+</div>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+        <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="removeUsed">清空已使用卡密</button>
+        <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="removeAll">清空所有卡密</button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="view"><i class="layui-icon layui-icon-search"></i>详细</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script th:src="@{/static/js/jquery.min.js}" charset="utf-8"></script>
+<script th:src="@{/static/layui/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/util.js}" charset="utf-8"></script>
+
+<script>
+    var table,form;
+    layui.use(['jquery', 'table'], function () {
+        table = layui.table;
+        form = layui.form;
+
+        table.render({
+            elem: '#kmTab'
+            , url: '/km/list'
+            , method: 'post'
+            , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , defaultToolbar: ['exports']
+            , title: 'kmTab'
+            , cols: [
+                [
+                    {field: 'id', title: 'ID', align: 'center',width: 80}
+                    , {field: 'goodsName', title: '商品名称', align: 'center'}
+                    , {field: 'goodsId', title: '商品ID', hide: 'true'}
+                    , {field: 'km', title: '卡密名称', align: 'center'}
+                    , {field: 'createTime', title: '导入时间', align: 'center',
+                    templet: '<div>{{ layui.util.toDateString(d.createTime, "yyyy-MM-dd HH:mm:ss") }}</div>'}
+                    , {field: 'orderNo', title: '订单号', align: 'center'}
+                    , {field: 'payNo', title: '交易流水号', align: 'center', hide: 'true'}
+                    , {field: 'contact', title: '联系方式', align: 'center', hide: 'true'}
+                    , {fixed: 'right', title: '操作', toolbar: '#barDemo'}
+                ]
+            ]
+            , page: true
+            , request: {
+                pageName: 'pageNo' //页码的参数名称，默认：page
+                , limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            }
+            , parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": 0, //解析接口状态
+                    "msg": "", //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                };
+            }
+
+        });
+
+
+        form.verify({
+            integer:[
+                /^[0-9]\d*$/
+                ,'只能输入整数！'
+            ]
+        });
+
+        var $ = layui.$, active = {
+            reload: function () {
+                var queryWhere = {};
+
+                var s_keyword = $('#s_keyword').val();
+                if (s_keyword != '') {
+                    queryWhere['keyword'] = s_keyword;
+                }
+                //执行重载
+                table.reload('kmTab', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: queryWhere
+                    , done: function (res, curr, count) {
+                        this.where = {};
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.searchTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //头工具栏事件
+        table.on('toolbar(kmTab)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                //自定义头工具栏右侧图标 - 提示
+                case 'add':
+                    //iframe层-父子操作
+                {
+                    var updateIndex = layer.open({
+                        //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                        type: 1,
+                        title: "添加卡密",
+                        area: ['800px', '680px'],
+                        content: $("#editForm")//引用的弹出层的页面层的方式加载修改界面表单
+                    });
+                    // 重置表单
+                    setFormValue(obj,null);
+                }
+                    break;
+            }
+            ;
+        });
+
+        // 监听商品更改事件
+        form.on('select(goodsId)', function(e) {
+            $.ajax({
+                type: "GET",
+                url: ctx+'goods/kmtj/'+$("#goodsId").val(),
+                success: function (result) {
+                    $('#kmtj').val('总计卡密：'+result.data.total+'张|剩余卡密：'+result.data.left+'张');
+                }
+            })
+        })
+
+        //监听弹出框表单提交，massage是修改界面的表单数据'submit(submitBtn),是修改按钮的绑定
+        function setFormValue(obj, data) {
+            var target = $("#goodsId");
+            // 加载商品分类
+            $.ajax({
+                type: "GET",
+                url: ctx+'goods/listAll',
+                success: function (result) {
+                    resetForm();
+                    target.find("option").remove();
+                    target.append(new Option());
+                    $.each(result.data, function (index, item) {
+                        target.append(new Option(item.goodsName, item.id));
+                    });
+
+                    layui.form.render();
+                }
+            })
+
+            // 批量提交
+            form.on('submit(submitBtn)', function (data) {
+                var arr =  data.field.kms.split('\n');
+
+                $.ajax({
+                    url: ctx+'/km/addBatch',
+                    type: "POST",
+                    dataType: "json",
+                    data:  {"goodsId": $("#goodsId").val(), "kms": arr},
+                    success: function (data) {
+                        layer.closeAll();//关闭所有的弹出层
+                        table.reload('kmTab');
+                    }
+                });
+            })
+        }
+
+        function resetForm(){
+            $("#goodsId").val("");
+            $("#kms").val("");
+        }
+
+        //监听行工具事件
+        table.on('tool(kmTab)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/km/remove",
+                        traditional: true,
+                        data: {
+                            id: data.id
+                        },
+                        success: function (data) {
+                            layer.close(index);
+
+                            //执行重载
+                            table.reload('kmTab');
+                        },
+                        error: function (e) {
+                            console.log("ERROR: ", e);
+                        }
+                    });
+                });
+            } else if (obj.event === 'view') {
+
+                var updateIndex = layer.open({
+                    //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                    type: 1,
+                    title: "卡密详细信息",
+                    shadeClose: true,
+                    area: ['400px', '430px'],
+                    content: $("#viewForm")//引用的弹出层的页面层的方式加载修改界面表单
+
+                });
+                $('#goodsName').text('商品名称：'+data.goodsName);
+                $('#km').text('卡密信息：'+data.km);
+                $('#createTime').text('导入时间：'+data.createTime);
+                $('#orderNo').text('订单编号：无');
+                $('#payNo').text('交易流水号：无');
+                $('#contact').text('联系方式：无');
+                $('#status').html('卡密状态：'+'<font color="green">未使用</font>');
+                if(data.orderNo!=null){
+                    $('#orderNo').text('订单编号：'+data.orderNo);
+                }
+                if(data.payNo!=null){
+                    $('#payNo').text('交易流水号：'+data.payNo);
+                }
+                if(data.contact!=null){
+                    $('#contact').text('联系方式：'+data.contact);
+                }
+                if(data.orderNo!=null){
+                    $('#status').html('卡密状态：'+'<font color="red">已使用</font>');
+                }
+            }
+        });
+
+
+        $("#back").on('click', function () {
+            layer.closeAll();
+        });
+
+
+    });
+
+</script>
+
+</body>
+</html>

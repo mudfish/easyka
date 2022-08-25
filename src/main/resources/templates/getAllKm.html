@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-cn" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>卡密提取</title>
+
+    <link rel="stylesheet" th:href="@{/static/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/static/css/font-awesome.min.css}">
+
+    <link rel="shortcut icon" type="image/x-icon" media="screen" th:href="@{/static/img/4.png}">
+    <link rel="stylesheet" id="layuicss-skinlayercss" th:href="@{/static/css/layer.css}">
+
+    <style>
+        .mytab {
+            margin-top: 20px;
+
+            text-align: center;
+        }
+
+        img.logo {
+            width: 14px;
+            height: 14px;
+            margin: 0 5px 0 3px;
+        }
+
+        body {
+            background-image: url("/static/img/bj3.jpg");
+            background-size: 100%;
+        }
+    </style>
+</head>
+<body>
+<div style="height: 20px;">
+
+</div>
+<div class="container">
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-9 center-block" style="float: none;">
+        <div class="panel panel-primary">
+            <div class="panel-body" style="text-align: center;">
+                <div class="list-group">
+                    <div class="list-group-item list-group-item-warning">
+                        注意事项：推荐使用下单时候联系方式查询卡密！<br>
+                        <br>
+                    </div>
+                    <ul class="nav nav-tabs" style="margin-top: 20px;">
+                        <li class="active"><a href="#onlinebuy" data-toggle="tab">查询历史订单</a></li>
+                        <li><a th:href="@{/}">在线购买下单</a></li>
+                    </ul>
+
+                    <div class="list-group-item">
+                        <div id="myTabContent" class="tab-content">
+                            <form th:action="@{/webapi/queryKm}" method="POST">
+                                <div class="form-group">
+                                    <input type="text" name="keyword" id="keyword" value="" class="form-control text-center"
+                                           placeholder="输入联系方式/订单编号/商户单号/都可以提取到您的卡密" required/>
+                                </div>
+                                <input type="submit" id="sub_query" class="btn btn-primary btn-block" value="提取卡密">
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table  table-hover text-center mytab" width="100%" ;style="text-align: center; ">
+                            <tr>
+                                <td>卡密</td>
+                                <td>订单编号</td>
+                                <td>商品名称</td>
+                                <td>价格</td>
+                                <td>联系方式</td>
+                                <td>交易时间</td>
+                            </tr>
+                            <tr th:each="km : ${kmlist}">
+                                <td th:text="${km.getKm()}"></td>
+                                <td th:text="${km.getOrderNo()}"></td>
+                                <td th:text="${km.getGoodsName()}"></td>
+                                <td th:text="${km.getGoodsPrice()}"></td>
+                                <td th:text="${km.getContact()}"></td>
+                                <td th:text="${km.getPayTime()}"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <hr/>
+                    <div class="container-fluid">
+                        <a href="http://wpa.qq.com/msgrd?v=3&amp;uin=1220518150&amp;site=qq&amp;menu=yes" class="btn btn-info btn-sm" target="_blank">
+                            <span class="glyphicon glyphicon-user"></span> 联系客服</a>
+                    </div>
+                    <br>
+                    <span>Copyright © 2021 问道抽奖</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

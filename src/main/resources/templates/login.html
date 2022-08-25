@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>登录</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon"  href="/static/favicon.ico" th:href="@{/static/img/favicon.png}">
+    <link rel="stylesheet" href="/static/layui/css/layui.css" th:href="@{/static/layui/css/layui.css}">
+    <link rel="stylesheet" href="/static/css/admin.css" th:href="@{/static/css/admin.css}">
+    <link rel="stylesheet" href="/static/css/login.css" th:href="@{/static/css/login.css}">
+    <link id="layuicss-layer" rel="stylesheet" href="/static/css/layer.css" th:href="@{/static/css/layer.css}">
+</head>
+<body>
+
+<div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-login" style="display: none;">
+
+    <div class="layadmin-user-login-main">
+        <div class="layadmin-user-login-box layadmin-user-login-header">
+            <h2><i class="layui-icon" style="font-size: 48px;">&#xe857;</i></h2>
+            <p>发卡后台系统</p>
+        </div>
+        <form class="layadmin-user-login-box layadmin-user-login-body layui-form" id="login-form">
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="username"></label>
+                <input type="text" name="username" id="username" lay-verify="required" placeholder="用户名"
+                       class="layui-input">
+            </div>
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="password"></label>
+                <input type="password" name="password" id="password" lay-verify="required" placeholder="密码"
+                       class="layui-input">
+            </div>
+            <!--验证码-->
+            <!--<div class="layui-form-item">
+                <div class="layui-row">
+                    <div class="layui-col-xs7">
+                        <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="verifyCode"></label>
+                        <input type="text" name="verifyCode" id="verifyCode" lay-verify="required" placeholder="验证码"
+                               class="layui-input">
+                    </div>
+                    <div class="layui-col-xs5">
+                        <div style="margin-left: 10px;">
+                            <img id="imgVerifyCode" th:src="@{/getVerifyCode}" alt="更换验证码" height="36px"
+                                 width="100px"
+                                 onclick="getVerifyCode(this);" class="layadmin-user-login-codeimg">
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+            <div class="layui-form-item">
+                <button class="layui-btn layui-btn-fluid" type="button" lay-submit="" id="login-submit"
+                        lay-filter="login-submit">登 录
+                </button>
+            </div>
+
+           <!-- <div class="layui-trans layui-form-item layadmin-user-login-other">
+                <a th:href="@{/register}" class="layadmin-user-jump-change layadmin-link">注册帐号</a>
+            </div>-->
+        </form>
+    </div>
+
+
+</div>
+<script src="/static/js/jquery-1.11.3.min.js" th:src="@{/static/js/jquery.min.js}"></script>
+<script src="/static/layui/layui.js" th:src="@{/static/layui/layui.js}"></script>
+
+<script>
+    $(function() {
+        if (window != top) {
+            top.location.href = location.href;
+        }
+    });
+
+    var layer, form;
+    layui.use(['layer', 'form'], function () {
+        layer = layui.layer;
+        form = layui.form;
+
+        $(document).keyup(function(event){
+            if(event.keyCode ==13){
+                $("#login-submit").trigger("click");
+            }
+        });
+
+        //监听提交
+        form.on('submit(login-submit)', function (data) {
+            //进行ajax事件
+            $.ajax({
+                type: "POST",
+                url: "/doLogin",
+                data: {
+                    "username": $("#username").val(),
+                    "password": $("#password").val()
+                },
+                success: function (result) {
+                    //layer.alert(JSON.stringify(result));
+                    if (result.code == 200) {
+                        window.location.href = "/admin";
+                    } else {
+                        layer.alert(result.message);
+                    }
+                }
+            });
+
+            return false;
+        });
+    });
+
+</script>
+</body>
+</html>

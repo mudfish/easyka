@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>layui</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}" media="all">
+</head>
+<body>
+
+<table class="layui-hide" id="goodsTypeTab" lay-filter="goodsTypeTab"></table>
+
+<input type="text" id="ctx" hidden="hidden" th:value="${#request.getContextPath()}">
+
+<!--编辑表单-->
+<div class="layui-row" id="editForm" style="display:none;">
+    <div class="layui-col-md10">
+        <form class="layui-form layui-from-pane" action="" style="margin-top:20px">
+            <input type="text" id="m_id" name="id" hidden="hidden">
+            <div class="layui-form-item">
+                <label class="layui-form-label">分类名称</label>
+                <div class="layui-input-block">
+                    <input type="text" id="m_typeName" name="typeName" required lay-verify="required" autocomplete="off"
+                           placeholder="请输入名称" class="layui-input">
+                </div>
+            </div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">分类编码</label>
+                <div class="layui-input-block">
+                    <input type="text" id="m_typeCode" name="typeCode" autocomplete="off"
+                           placeholder="请输入编码" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item" style="margin-top:40px">
+                <div class="layui-input-block">
+                    <button class="layui-btn  layui-btn-submit " lay-submit="" lay-filter="demo11">确认</button>
+                    <button class="layui-btn layui-btn-primary" id="back">关闭</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
+    </div>
+</script>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script th:src="@{/static/js/jquery.min.js}" charset="utf-8"></script>
+<script th:src="@{/static/layui/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/util.js}" charset="utf-8"></script>
+
+<script>
+    layui.use(['jquery', 'table'], function () {
+        var table = layui.table;
+        var form = layui.form;
+
+        table.render({
+            elem: '#goodsTypeTab'
+            , url: '/goodsType/list'
+            , method: 'post'
+            , toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            , defaultToolbar: ['exports']
+            , title: 'goodsTypeTab'
+            , cols: [
+                [
+                    {field: 'id', title: 'ID', align: 'center',width: 80}
+                    , {field: 'typeName', title: '分类名称', align: 'center'}
+                    , {field: 'typeCode', title: '分类编码', align: 'center'}
+                    , {fixed: 'right', title: '操作', toolbar: '#barDemo'}
+                ]
+            ]
+            , page: true
+            , request: {
+                pageName: 'pageNo' //页码的参数名称，默认：page
+                , limitName: 'pageSize' //每页数据量的参数名，默认：limit
+            }
+            , parseData: function (res) { //res 即为原始返回的数据
+                return {
+                    "code": 0, //解析接口状态
+                    "msg": "", //解析提示文本
+                    "count": res.data.total, //解析数据长度
+                    "data": res.data.records //解析数据列表
+                };
+            }
+
+        });
+        var $ = layui.$, active = {
+            reload: function () {
+                var queryWhere = {};
+
+                //执行重载
+                table.reload('goodsTypeTab', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: queryWhere
+                    , done: function (res, curr, count) {
+                        this.where = {};
+                    }
+                }, 'data');
+            }
+        };
+
+        $('.searchTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+        //头工具栏事件
+        table.on('toolbar(goodsTypeTab)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                //自定义头工具栏右侧图标 - 提示
+                case 'add':
+                    //iframe层-父子操作
+                {
+                    var updateIndex = layer.open({
+                        //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                        type: 1,
+                        title: "新增",
+                        area: ['500px', '550px'],
+                        content: $("#editForm")//引用的弹出层的页面层的方式加载修改界面表单
+                    });
+                    setFormValue(obj, null);
+                    $("#m_id").val("");
+                    $("#m_typeName").val("");
+                    $("#m_typeCode").val("");
+                }
+                    break;
+            }
+            ;
+        });
+
+        //监听弹出框表单提交，massage是修改界面的表单数据'submit(demo11),是修改按钮的绑定
+        function setFormValue(obj, data) {
+            if (data != null) {
+                $("#m_id").val(data.id);
+                $("#m_typeName").val(data.typeName);
+                $("#m_typeCode").val(data.typeCode);
+            }
+
+        }
+
+        form.on('submit(demo11)', function (massage) {
+            $.ajax({
+                url: $("#m_id").val() ==''?'/goodsType/add':'/goodsType/modify',
+                type: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(massage.field),
+                success: function (data) {
+                    layer.closeAll();//关闭所有的弹出层
+                }
+            });
+        })
+
+
+        //监听行工具事件
+        table.on('tool(goodsTypeTab)', function (obj) {
+            var data = obj.data;
+            console.log(obj)
+            if (obj.event === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/goodsType/remove",
+                        traditional: true,
+                        data: {
+                            id: data.id
+                        },
+                        success: function (data) {
+                            layer.close(index);
+
+                            //执行重载
+                            table.reload('goodsTypeTab');
+                        },
+                        error: function (e) {
+                            console.log("ERROR: ", e);
+                        }
+                    });
+                });
+            } else if (obj.event === 'edit') {
+                //iframe层-父子操作
+                var updateIndex = layer.open({
+                    //layer提供了5种层类型。可传入的值有：0（信息框，默认）1（页面层）2（iframe层）3（加载层）4（tips层）
+                    type: 1,
+                    title: "修改",
+                    area: ['500px', '550px'],
+                    content: $("#editForm")//引用的弹出层的页面层的方式加载修改界面表单
+
+                });
+                setFormValue(obj, data);
+            }
+        });
+
+
+        $("#back").on('click', function () {
+            layer.closeAll();
+        });
+    });
+</script>
+
+</body>
+</html>

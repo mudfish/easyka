@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laoxu.game.mapper.OrderMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.laoxu.game.entity.Order">
+        <id column="id" property="id" />
+        <result column="order_no" property="orderNo" />
+        <result column="pay_no" property="payNo" />
+        <result column="goods_name" property="goodsName" />
+        <result column="goods_id" property="goodsId" />
+        <result column="contact" property="contact" />
+        <result column="create_time" property="createTime" />
+        <result column="pay_time" property="payTime" />
+        <result column="qty" property="qty" />
+        <result column="amount" property="amount" />
+        <result column="status" property="status" />
+        <result column="channel" property="channel" />
+    </resultMap>
+
+    <select id="selectOrderList" resultMap="BaseResultMap">
+      select t1.id, t1.order_no, t1.pay_no, t1.channel, t1.goods_id, t2.goods_name, t1.contact, t1.create_time, t1.pay_time, t1.qty, t1.amount,t1.status
+      from tb_order t1 left join tb_goods t2
+      on t1.goods_id = t2.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                t1.order_no = #{keyword}
+                OR t1.pay_no = #{keyword}
+                OR t1.contact = #{keyword}
+            </if>
+        </where>
+        order by t1.id desc
+    </select>
+
+    <update id="finish" parameterType="list">
+        update tb_order
+        set status = 2
+        where status = 1
+        and id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

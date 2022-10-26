@@ -38,4 +38,8 @@
         WHERE order_no IS NULL OR order_no = ''
         LIMIT #{qty}
     </update>
+
+    <select id="selectUnUsedKm" resultType="int">
+        select count(*) from tb_goods_item where ISNULL(order_no)=0 and LENGTH(TRIM(order_no)) =0 and goods_id=#{gid}
+    </select>
 </mapper>

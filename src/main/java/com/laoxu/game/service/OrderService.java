@@ -18,5 +18,6 @@ public interface OrderService extends IService<Order> {
     Page<Order> selectOrderList(Page<Order> page, String keyword);
     Order getOrder(String orderNo);
     boolean paySuccess(String orderNo);
+    boolean hasEnoughKm(Integer gid, Integer qty);
     int finish(List<Integer> ids);
 }

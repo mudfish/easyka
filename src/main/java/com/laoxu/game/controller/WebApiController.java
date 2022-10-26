@@ -294,6 +294,17 @@ public class WebApiController {
         return notify(notifyParams, response);
     }
 
+    @ResponseBody
+    @PostMapping("/renewOrder")
+    public String renewOrder(@RequestParam String orderNo){
+        boolean success = orderService.paySuccess(orderNo);
+        if(success){
+            return "0";
+        }
+
+        return "1";
+    }
+
     public String notify(NotifyParams notifyParams, HttpServletResponse response) {
         if (null != notifyParams) {
             String sign = generateNotifySign(notifyParams, APP_ID, APP_SECRET);

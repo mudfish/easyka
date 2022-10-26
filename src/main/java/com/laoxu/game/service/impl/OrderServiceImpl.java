@@ -2,6 +2,8 @@ package com.laoxu.game.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.laoxu.game.common.ResultUtil;
+import com.laoxu.game.entity.GoodsItem;
 import com.laoxu.game.entity.Order;
 import com.laoxu.game.mapper.GoodsItemMapper;
 import com.laoxu.game.mapper.OrderMapper;
@@ -55,26 +57,39 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
             SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:sss");
             Order order = getOrder(orderNo);
             if (order == null) {
-                throw new Exception("订单不存在");
+                throw new Exception("订单"+orderNo+"不存在");
             }
             // 幂等
             if (order.getStatus() == 1) {
                 return true;
             }
+            // 占用卡密
+            Integer qty = order.getQty();
+            // 检查卡密是否足够
+            if(!hasEnoughKm(order.getGoodsId(),qty)){
+                throw new Exception("订单"+orderNo+"卡密不足");
+            }
+            kmMapper.updateByOrder(orderNo,qty);
 
             order.setStatus(1); // 支付状态更新为已支付
             order.setPayTime(sf.format(new Date()));
-
             orderMapper.updateById(order);
-            // 占用卡密
-            Integer qty = order.getQty();
-            kmMapper.updateByOrder(orderNo,qty);
 
             return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    @Override
+    public boolean hasEnoughKm(Integer gid, Integer qty) {
+        Integer kmLeft = kmMapper.selectUnUsedKm(gid);
+        if(kmLeft < qty){
+            return false;
+        }
+
+        return true;
     }
 
     @Override

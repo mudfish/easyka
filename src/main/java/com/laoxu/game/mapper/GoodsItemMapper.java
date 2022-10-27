@@ -19,4 +19,6 @@ public interface GoodsItemMapper extends BaseMapper<GoodsItem> {
     List<GoodsItem> selectGoodsItemList(Page page, @Param("keyword") String keyword);
     int updateByOrder(@Param("orderNo") String orderNo, @Param("qty") int qty);
     int selectUnUsedKm(@Param("gid") int gid);
+    void logicDeleteUsedKm();
+    void deleteAllKm();
 }

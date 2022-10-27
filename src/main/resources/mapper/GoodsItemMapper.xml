@@ -22,6 +22,7 @@
         FROM tb_goods_item a
         LEFT JOIN tb_goods b ON a.goods_id = b.id
         LEFT JOIN tb_order c ON a.order_no = c.order_no
+        WHERE a.is_delete = 0
         ) AS T
         <where>
             <if test="keyword != null and keyword != ''">
@@ -42,4 +43,14 @@
     <select id="selectUnUsedKm" resultType="int">
         select count(*) from tb_goods_item where ISNULL(order_no)=0 and LENGTH(TRIM(order_no)) =0 and goods_id=#{gid}
     </select>
+
+    <update id="logicDeleteUsedKm">
+      UPDATE tb_goods_item
+       SET is_delete = 1
+      WHERE ISNULL(order_no)=0 and LENGTH(TRIM(order_no)) > 0
+    </update>
+
+    <delete id="deleteAllKm">
+       DELETE FROM tb_goods_item
+    </delete>
 </mapper>

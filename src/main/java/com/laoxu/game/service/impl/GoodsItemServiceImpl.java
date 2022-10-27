@@ -27,4 +27,14 @@ public class GoodsItemServiceImpl extends ServiceImpl<GoodsItemMapper, GoodsItem
         page.setRecords(goodsItemMapper.selectGoodsItemList(page, keyword));
         return page;
     }
+
+    @Override
+    public void removeUsedKm() {
+        goodsItemMapper.logicDeleteUsedKm();
+    }
+
+    @Override
+    public void removeAllKm() {
+        goodsItemMapper.deleteAllKm();
+    }
 }

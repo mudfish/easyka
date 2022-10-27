@@ -15,4 +15,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface GoodsItemService extends IService<GoodsItem> {
     Page<GoodsItem> selectGoodsItemList(Page<GoodsItem> page, String keyword);
+    void removeUsedKm();
+    void removeAllKm();
 }

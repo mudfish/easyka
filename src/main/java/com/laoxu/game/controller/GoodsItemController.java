@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -120,6 +121,40 @@ public class GoodsItemController {
         goodsItemService.removeById(id);
 
         return ResultUtil.ok("删除成功！");
+    }
+
+    /**
+     *  批量删除
+     * @param ids
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("/removes")
+    public Result<String> remove(@RequestBody Long[] ids) {
+        goodsItemService.removeByIds(Arrays.asList(ids));
+        return ResultUtil.ok();
+    }
+
+    /**
+     *  清空已使用卡密
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("/removeUsedKm")
+    public Result<String> removeUsedKm() {
+        goodsItemService.removeUsedKm();
+        return ResultUtil.ok();
+    }
+
+    /**
+     *  清空所有卡密
+     * @return
+     */
+    @ResponseBody
+    @PostMapping("/removeAllKm")
+    public Result<String> removeAllKm() {
+        goodsItemService.removeAllKm();
+        return ResultUtil.ok();
     }
 
 }

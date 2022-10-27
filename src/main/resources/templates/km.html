@@ -127,8 +127,10 @@
 <script type="text/html" id="toolbarDemo">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="add">新增</button>
-        <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="removeUsed">清空已使用卡密</button>
-        <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="removeAll">清空所有卡密</button>
+        <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="remove"><i class="layui-icon">&#xe640;</i>删除
+        </button>
+        <button class="layui-btn layui-btn-sm layui-btn-warm" lay-event="removeUsedKm">清空已使用卡密</button>
+        <button class="layui-btn layui-btn-sm layui-btn-danger" lay-event="removeAllKm">清空所有卡密</button>
     </div>
 </script>
 
@@ -142,12 +144,12 @@
 <script th:src="@{/static/js/util.js}" charset="utf-8"></script>
 
 <script>
-    var table,form;
+    var table,form,kmTable;
     layui.use(['jquery', 'table'], function () {
         table = layui.table;
         form = layui.form;
 
-        table.render({
+        kmTable = table.render({
             elem: '#kmTab'
             , url: '/km/list'
             , method: 'post'
@@ -155,8 +157,8 @@
             , defaultToolbar: ['exports']
             , title: 'kmTab'
             , cols: [
-                [
-                    {field: 'id', title: 'ID', align: 'center',width: 80}
+                [ {type: 'checkbox', fixed: 'left'}
+                    ,{field: 'id', title: 'ID', align: 'center',width: 80}
                     , {field: 'goodsName', title: '商品名称', align: 'center'}
                     , {field: 'goodsId', title: '商品ID', hide: 'true'}
                     , {field: 'km', title: '卡密名称', align: 'center'}
@@ -221,6 +223,8 @@
         //头工具栏事件
         table.on('toolbar(kmTab)', function (obj) {
             var checkStatus = table.checkStatus(obj.config.id);
+            var checkData = checkStatus.data;
+            var ids = [];
             switch (obj.event) {
                 //自定义头工具栏右侧图标 - 提示
                 case 'add':
@@ -236,6 +240,74 @@
                     // 重置表单
                     setFormValue(obj,null);
                 }
+                    break;
+                // 删除
+                case 'remove':
+                    if (checkData.length == 0) {
+                        layer.alert('请选择要操作的行');
+                    } else {
+                        layer.confirm('确定要删除吗？', function (index) {
+                            for (var i = 0; i < checkData.length; i++) {
+                                ids.push(checkData[i].id);
+                            }
+                            //layer.alert(JSON.stringify(ids));
+                            $.ajax({
+                                url: ctx+'km/removes',
+                                type: 'POST',
+                                contentType: "application/json",
+                                dataType: "json",
+                                data: JSON.stringify(ids),
+                                success: function (result) {
+                                    if (result.code == 200) {
+                                        setTimeout(function () {
+                                            layer.closeAll();//关闭所有的弹出层
+                                            kmTable.reload();
+                                        }, 300);
+                                    }else {
+                                        layer.msg("操作失败！", {icon: 5});
+                                    }
+                                }
+                            });
+                        });
+                    }
+                    break;
+                // 清空已使用卡密
+                case 'removeUsedKm':
+                        layer.confirm('确定要清空已使用卡密吗？', function (index) {
+                            $.ajax({
+                                url: ctx+'km/removeUsedKm',
+                                type: 'POST',
+                                success: function (result) {
+                                    if (result.code == 200) {
+                                        setTimeout(function () {
+                                            layer.closeAll();//关闭所有的弹出层
+                                            kmTable.reload();
+                                        }, 300);
+                                    }else {
+                                        layer.msg("操作失败！", {icon: 5});
+                                    }
+                                }
+                            });
+                        });
+                    break;
+                // 清空所有卡密
+                case 'removeAllKm':
+                    layer.confirm('确定要清空所有卡密吗？', function (index) {
+                        $.ajax({
+                            url: ctx+'km/removeAllKm',
+                            type: 'POST',
+                            success: function (result) {
+                                if (result.code == 200) {
+                                    setTimeout(function () {
+                                        layer.closeAll();//关闭所有的弹出层
+                                        kmTable.reload();
+                                    }, 300);
+                                }else {
+                                    layer.msg("操作失败！", {icon: 5});
+                                }
+                            }
+                        });
+                    });
                     break;
             }
             ;

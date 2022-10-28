@@ -110,10 +110,12 @@ public class OrderController {
 
     @PostMapping("/finish")
     @ResponseBody
-    public Result<String> finish(@RequestBody Integer[] ids){
-        int result = orderService.finish(Arrays.asList(ids));
+    public Result<String> finish(@RequestParam String orderNo){
+        if(orderService.paySuccess(orderNo)){
+            return ResultUtil.ok("补单成功！");
+        }
 
-        return ResultUtil.ok("操作成功！");
+        return ResultUtil.ok("补单失败！");
     }
 
 }

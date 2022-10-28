@@ -92,6 +92,7 @@
 </script>
 
 <script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-success layui-btn-xs" lay-event="finish">补单</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
@@ -114,14 +115,14 @@
             , title: 'orderTab'
             , cols: [
                 [
-                      {field: 'id', title: 'ID', align: 'center',width: 80,hide: 'true'}
+                      {field: 'id', title: 'ID', align: 'center',width: 30,hide: 'true'}
                     ,{type: 'checkbox', fixed: 'left'}
-                    , {type: 'numbers', title:'序号', width:80}
+                    , {type: 'numbers', title:'序号', width:30}
                     , {field: 'orderNo', title: '订单编号', align: 'center',width: 180}
-                    , {field: 'payNo', title: '交易流水号', align: 'center',width: 260}
+                    , {field: 'payNo', title: '交易流水号', align: 'center',width: 180}
                     , {field: 'goodsName', title: '商品名称', align: 'center'}
                     , {field: 'goodsId', title: '商品ID', hide: 'true'}
-                    , {field: 'qty', title: '数量', align: 'center', width: 80}
+                    , {field: 'qty', title: '数量', align: 'center', width: 50}
                     , {field: 'amount', title: '交易金额', align: 'center'}
                     , {
                     field: 'channel', title: '支付渠道', align: 'center', templet: function (d) {
@@ -133,9 +134,9 @@
                         }
                         }}
                     , {field: 'contact', title: '联系方式', align: 'center',width: 120}
-                    , {field: 'createTime', title: '下单时间', align: 'center', width: 180,
+                    , {field: 'createTime', title: '下单时间', align: 'center', width: 150,
                        templet: '<div>{{ layui.util.toDateString(d.createTime, "yyyy-MM-dd HH:mm:ss") }}</div>'}
-                    , {field: 'payTime', title: '成交时间', align: 'center', width: 180,
+                    , {field: 'payTime', title: '成交时间', align: 'center', width: 150,
                         templet:  '<div>{{ layui.util.toDateString(d.payTime, "yyyy-MM-dd HH:mm:ss") }}</div>'
                        }
                     , {
@@ -249,6 +250,28 @@
         //监听行工具事件
         table.on('tool(orderTab)', function (obj) {
             var data = obj.data;
+            if (obj.event === 'finish') {
+                console.log(JSON.stringify(data))
+                layer.confirm('真的补单吗？', function (index) {
+                    $.ajax({
+                        type: "POST",
+                        url: ctx+"order/finish",
+                        traditional: true,
+                        data: {
+                            orderNo: data.orderNo
+                        },
+                        success: function (data) {
+                            layer.close(index);
+
+                            //执行重载
+                            table.reload('orderTab');
+                        },
+                        error: function (e) {
+                            console.log("ERROR: ", e);
+                        }
+                    });
+                });
+            }
             if (obj.event === 'del') {
                 layer.confirm('真的删除行么', function (index) {
                     $.ajax({

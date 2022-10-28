@@ -92,8 +92,4 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         return true;
     }
 
-    @Override
-    public int finish(List<Integer> ids) {
-        return 0;
-    }
 }

@@ -12,8 +12,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: root123
-    url: jdbc:mysql://localhost:3306/easyka?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT&useSSL=false
+    password: aDxcFHfF3I4GS2
+    url: jdbc:mysql://124.221.11.239:3306/easyka?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT&useSSL=false
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   #configuration:

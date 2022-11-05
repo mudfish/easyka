@@ -3,6 +3,7 @@ package com.laoxu.game.mapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.laoxu.game.entity.Order;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.laoxu.game.vo.KmVO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,4 +19,5 @@ import java.util.List;
 public interface OrderMapper extends BaseMapper<Order> {
     List<Order> selectOrderList(Page<Order> page, @Param("keyword") String keyword);
     int finish(@Param("ids") List<Integer> ids);
+    List<KmVO> selectOrderKmByKeyword(@Param("keyword") String keyword);
 }

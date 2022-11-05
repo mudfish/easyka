@@ -3,6 +3,7 @@ package com.laoxu.game.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.laoxu.game.entity.Order;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.laoxu.game.vo.KmVO;
 
 import java.util.List;
 
@@ -19,4 +20,5 @@ public interface OrderService extends IService<Order> {
     Order getOrder(String orderNo);
     boolean paySuccess(String orderNo);
     boolean hasEnoughKm(Integer gid, Integer qty);
+    List<KmVO> getOrderKmByKeyword(String keyword);
 }

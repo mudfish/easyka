@@ -32,6 +32,21 @@
         order by t1.id desc
     </select>
 
+    <select id="selectOrderKmByKeyword" resultType="com.laoxu.game.vo.KmVO">
+        select t1.order_no as "orderNo", t2.goods_name as "goodsName", t2.price as "goodsPrice",t1.contact, t1.pay_time as "payTime",t3.km
+        from tb_order t1 left join tb_goods t2
+        on t1.goods_id = t2.id
+        left join tb_goods_item t3
+        on t2.id = t3.goods_id
+        and t1.order_no = t3.order_no
+        <where>
+            <if test="keyword != null and keyword != ''">
+                (t1.order_no = #{keyword} OR t1.pay_no = #{keyword} OR t1.contact = #{keyword})
+            </if>
+        </where>
+        order by t1.id desc
+    </select>
+
     <update id="finish" parameterType="list">
         update tb_order
         set status = 2

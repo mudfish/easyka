@@ -379,41 +379,16 @@ public class WebApiController {
         return null;
     }*/
 
-
+    /**
+     *  根据订单号/联系方式/商户单号提取卡密
+     * @param keyword
+     * @param model
+     * @return
+     */
     @PostMapping("/queryKm")
-    public String queryKm(@RequestParam(required = true) String keyword, Model model){
-        // 先根据联系方式
-        QueryWrapper<Order> orderQueryWrapper = new QueryWrapper<>();
-        orderQueryWrapper.eq("order_no", keyword);
-        orderQueryWrapper.or().eq("contact",keyword).or().eq("pay_no", keyword);
-        Order order = orderService.getOne(orderQueryWrapper);
-        // 根据订单号查卡密列表
-        List<GoodsItem> kms = null;
-        List<KmVO> list = null;
-        if(order!=null){
-            QueryWrapper<GoodsItem> kmQuery = new QueryWrapper<>();
-            kmQuery.eq("order_no", order.getOrderNo());
-            kms = kmService.list(kmQuery);
-
-            Goods goods = goodsService.getById(order.getGoodsId());
-            KmVO km = null;
-            if(kms.size() > 0){
-                list = new ArrayList<>();
-                for (int i = 0; i < kms.size(); i++) {
-                    km = new KmVO();
-                    km.setOrderNo(order.getOrderNo());
-                    km.setContact(order.getContact());
-                    km.setGoodsName(goods.getGoodsName());
-                    km.setGoodsPrice(String.valueOf(goods.getPrice()));
-                    km.setPayTime(order.getPayTime());
-                    km.setKm(kms.get(i).getKm());
-
-                    list.add(km);
-                }
-            }
-        }
-
-        model.addAttribute("kmlist", list);
+    public String queryKm(@RequestParam String keyword, Model model){
+        List<KmVO> kmList = orderService.getOrderKmByKeyword(keyword);
+        model.addAttribute("kmlist", kmList);
 
         return "getAllKm";
     }

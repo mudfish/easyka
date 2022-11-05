@@ -10,6 +10,7 @@ import com.laoxu.game.mapper.OrderMapper;
 import com.laoxu.game.service.GoodsItemService;
 import com.laoxu.game.service.OrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.laoxu.game.vo.KmVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -90,6 +91,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
         }
 
         return true;
+    }
+
+    /**
+     * 根据订单号、联系方式、商户单号提取卡密
+     * @param keyword
+     * @return
+     */
+    @Override
+    public List<KmVO> getOrderKmByKeyword(String keyword) {
+        return orderMapper.selectOrderKmByKeyword(keyword);
     }
 
 }

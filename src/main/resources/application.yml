@@ -13,8 +13,6 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    #password: aDxcFHfF3I4GS2
-    #url: jdbc:mysql://124.221.11.239:3306/easyka?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT&useSSL=false
     url: jdbc:mysql://localhost:3306/easyka?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT&useSSL=false
     password: root123
 mybatis-plus:
@@ -26,8 +24,8 @@ mybatis-plus:
 web:
   upload:
     path: D:/upload/easyka/
-  APP_ID: c36b2cdc23ee73b8
-  APP_SECRET: 82bfb7283d039f5f5ef16caddbf9ba48
-  API_URL: https://v.vv123.xyz/createOrder
+  APP_ID: 123123
+  APP_SECRET: 123234
+  API_URL: https://v.123.234/createOrder
   # 订单支付回调接口
-  notifyUrl: http://202.189.12.222:18081/webapi/notifyUrl
+  notifyUrl: http://202.134.123.222:18081/webapi/notifyUrl

@@ -1,5 +1,6 @@
 server:
   port: 18081
+  max-http-header-size: 102400
 spring:
   mvc:
     static-path-pattern: /**

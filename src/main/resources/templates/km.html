@@ -345,13 +345,13 @@
 
             // 批量提交
             form.on('submit(submitBtn)', function (data) {
-                var arr =  data.field.kms.split('\n');
+                //var arr =  data.field.kms.split('\n');
 
                 $.ajax({
                     url: ctx+'/km/addBatch',
                     type: "POST",
                     dataType: "json",
-                    data:  {"goodsId": $("#goodsId").val(), "kms": arr},
+                    data:  {"goodsId": $("#goodsId").val(), "kms": data.field.kms},
                     success: function (data) {
                         layer.closeAll();//关闭所有的弹出层
                         table.reload('kmTab');

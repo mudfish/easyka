@@ -88,19 +88,24 @@ public class GoodsItemController {
 
     @PostMapping("/addBatch")
     @ResponseBody
-    public Result<String> addBatch(Integer goodsId, @RequestParam("kms[]") String[] kms){
-        List<GoodsItem> list = new ArrayList<>();
-        GoodsItem entity = null;
-        for (int i = 0; i < kms.length; i++) {
-            entity = new GoodsItem();
-            entity.setGoodsId(goodsId);
-            entity.setKm(kms[i]);
-            entity.setCreateTime(new Date());
+    public Result<String> addBatch(Integer goodsId, @RequestParam("kms") String kms){
+        // 判断kms是否为空
+        if(kms.length()>0){
+            // 以换行符分割字符串
+            String[] kmArray = kms.split("\n");
+            List<GoodsItem> list = new ArrayList<>();
+            GoodsItem entity = null;
+            for (int i = 0; i < kmArray.length; i++) {
+                entity = new GoodsItem();
+                entity.setGoodsId(goodsId);
+                entity.setKm(kmArray[i]);
+                entity.setCreateTime(new Date());
 
-            list.add(entity);
+                list.add(entity);
+            }
+
+            goodsItemService.saveBatch(list);
         }
-
-        goodsItemService.saveBatch(list);
 
         return ResultUtil.ok();
     }
